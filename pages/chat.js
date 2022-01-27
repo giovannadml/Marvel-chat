@@ -3,9 +3,23 @@ import React from 'react';
 import appConfig from '../config.json';
 
 export default function ChatPage() {
-  // Sua lógica vai aqui
+  const [mensagem, setMensagem] = React.useState('');
+  const [listagem, setListagem] = React.useState([]);
 
-  // ./Sua lógica vai aqui
+  function handleNovaMensagem(novaMensagem) {
+    const mensagem = {
+      id: listagem.length + 1,
+      de: 'github',
+      texto: novaMensagem,
+      horario: new Date().toLocaleTimeString(),
+    };
+    setListagem([
+      mensagem,
+      ...listagem
+    ]);
+    setMensagem('');
+  }
+
   return (
     <Box
       styleSheet={{
@@ -44,7 +58,14 @@ export default function ChatPage() {
           }}
         >
 
-          {/* <MessageList mensagens={[]} /> */}
+          <MessageList mensagens={listagem} />
+          {/* {listagem.map((mensagemAtual) => {
+            return (
+              <li key={mensagemAtual.id}>
+                {mensagemAtual.de}: {mensagemAtual.texto}
+              </li>
+            )
+          })} */}
 
           <Box
             as="form"
@@ -54,6 +75,17 @@ export default function ChatPage() {
             }}
           >
             <TextField
+              value={mensagem}
+              onChange={(event) => {
+                const valor = event.target.value;
+                setMensagem(valor);
+              }}
+              onKeyPress={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  handleNovaMensagem(mensagem);
+                }
+              }}
               placeholder="Insira sua mensagem aqui..."
               type="textarea"
               styleSheet={{
@@ -67,6 +99,16 @@ export default function ChatPage() {
                 color: appConfig.theme.colors.neutrals[200],
               }}
             />
+            <Button
+              variant='secondary'
+              iconName='paperPlane'
+              buttonColors={{
+                contrastColor: appConfig.theme.colors.neutrals["000"],
+                mainColor: appConfig.theme.colors.primary[500],
+                mainColorStrong: appConfig.theme.colors.primary[600],
+              }}
+              onClick={() => handleNovaMensagem(mensagem)}
+            />
           </Box>
         </Box>
       </Box>
@@ -77,21 +119,17 @@ export default function ChatPage() {
 function Header() {
   return (
     <>
-      <Box 
-        styleSheet={{ 
-          width: '100%', 
-          marginBottom: '16px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'space-between' 
-        }} 
-      >
-        <Text variant='heading5'>
+      <Box styleSheet={{ width: '100%', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
+        <Text variant='heading4'>
           Chat
         </Text>
         <Button
           variant='tertiary'
-          colorVariant='neutral'
+          buttonColors={{
+            contrastColor: appConfig.theme.colors.neutrals["000"],
+            mainColor: appConfig.theme.colors.primary[500],
+            mainColorLight: appConfig.theme.colors.neutrals[400],
+          }}
           label='Logout'
           href="/"
         />
@@ -101,12 +139,20 @@ function Header() {
 }
 
 function MessageList(props) {
-  console.log('MessageList', props);
+
+  function handleExcluirMensagem(id){
+    console.log(id);
+    // props.mensagens.filter(m => m.id != id);
+    // props.mensagens.splice(mensagem.indexOf(), 1);
+    // console.log(props.mensagens.indexOf(mensagem));
+  }
+
   return (
     <Box
       tag="ul"
       styleSheet={{
-        overflow: 'scroll',
+        overflowY: 'auto',
+        overflowX: 'hidden',
         display: 'flex',
         flexDirection: 'column-reverse',
         flex: 1,
@@ -114,50 +160,67 @@ function MessageList(props) {
         marginBottom: '16px',
       }}
     >
-
-      <Text
-        key={mensagem.id}
-        tag="li"
-        styleSheet={{
-          borderRadius: '5px',
-          padding: '6px',
-          marginBottom: '12px',
-          hover: {
-            backgroundColor: appConfig.theme.colors.neutrals[700],
-          }
-        }}
-      >
-        <Box
-          styleSheet={{
-            marginBottom: '8px',
-          }}
-        >
-          <Image
-            styleSheet={{
-              width: '20px',
-              height: '20px',
-              borderRadius: '50%',
-              display: 'inline-block',
-              marginRight: '8px',
-            }}
-            src={`https://github.com/vanessametonini.png`}
-          />
-          <Text tag="strong">
-            {mensagem.de}
-          </Text>
+      {props.mensagens.map((mensagem) => {
+        return (
           <Text
+            key={mensagem.id}
+            tag="li"
             styleSheet={{
-              fontSize: '10px',
-              marginLeft: '8px',
-              color: appConfig.theme.colors.neutrals[300],
+              borderRadius: '5px',
+              padding: '6px',
+              marginBottom: '12px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              hover: {
+                backgroundColor: appConfig.theme.colors.neutrals[700],
+              }
             }}
-            tag="span"
           >
-            {(new Date().toLocaleDateString())}
+            <Box 
+              styleSheet={{
+                justifyContent: 'space-between'
+              }}
+            >
+              <Box
+                styleSheet={{
+                  marginBottom: '8px',
+                }}
+              >
+                <Image
+                  styleSheet={{
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    display: 'inline-block',
+                    marginRight: '8px',
+                  }}
+                  src={`https://github.com/github.png`}
+                />
+                <Text tag="strong">
+                  {mensagem.de}
+                </Text>
+                <Text
+                  styleSheet={{
+                    fontSize: '10px',
+                    marginLeft: '8px',
+                    color: appConfig.theme.colors.neutrals[300],
+                  }}
+                  tag="span"
+                >
+                  {(new Date().toLocaleDateString())} às {mensagem.horario}
+                </Text>
+              </Box>
+              {mensagem.texto}
+            </Box>
+            <Button
+              iconName={'trash'}
+              variant='tertiary'
+              colorVariant='negative'
+              onClick={() => handleExcluirMensagem(mensagem.id)}
+            />
           </Text>
-        </Box>
-        {mensagem.texto}
-      </Text>
+        );
+      })}
     </Box>
   )
 }

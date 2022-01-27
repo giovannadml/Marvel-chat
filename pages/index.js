@@ -33,8 +33,6 @@ function Titulo(props) {
 
 export default function PaginaInicial() {
   const [username, setUsername] = React.useState('github');
-  const message = `api.github.com/users/${username}/message`;
-  console.log(message);
   const roteamento = useRouter();
 
   return (
@@ -67,8 +65,7 @@ export default function PaginaInicial() {
             as="form"
             onSubmit={function (event) {
               event.preventDefault();
-              console.log('Alguém submeteu o form');
-              roteamento.push('/chat');
+              roteamento.push('/chat/');
               // window.location.href = '/chat';
             }}
             styleSheet={{
