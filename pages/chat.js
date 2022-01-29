@@ -2,15 +2,31 @@ import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
 import { createClient } from '@supabase/supabase-js'
+import { useRouter } from 'next/router';
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
 
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzMyNTg2MiwiZXhwIjoxOTU4OTAxODYyfQ.QWcuC-Oo6w-MhxPDH2kj4IKl3CNQLFU0xyRrgHR5Y8M";
 const SUPABASE_URL = "https://zfqsduzbstuvfyiixmqh.supabase.co";
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-
 export default function ChatPage() {
+  const roteamento = useRouter();
+  const username = roteamento.query.username;
   const [mensagem, setMensagem] = React.useState('');
-  const [listagem, setListagem] = React.useState([]);
+  const [listagem, setListagem] = React.useState([
+    // {
+    //   id: 1,
+    //   de: 'omariosouto',
+    //   texto: ':sticker: https://c.tenor.com/TKpmh4WFEsAAAAAC/alura-gaveta-filmes.gif',
+    //   horario: '19:29:26',
+    // },
+    // {
+    //   id: 2,
+    //   de: 'peas',
+    //   texto: 'uuuuuuu',
+    //   horario: '19:31:51',
+    // }
+  ]);
   
   React.useEffect(() => {
     supabaseClient
@@ -18,7 +34,7 @@ export default function ChatPage() {
       .select('*')
       .order('id', { ascending: false })
       .then(({ data }) => {
-        console.log('Dados da consulta: ', data);
+        // console.log('Dados da consulta: ', data);
         setListagem(data);
       })
   }, []);
@@ -26,10 +42,12 @@ export default function ChatPage() {
   function handleNovaMensagem(novaMensagem) {
     const mensagem = {
       // id: listagem.length + 1,
-      de: 'github',
+      de: username,
       texto: novaMensagem,
       horario: new Date().toLocaleTimeString(),
     };
+
+
 
     supabaseClient
       .from('mensagens')
@@ -125,9 +143,27 @@ export default function ChatPage() {
                 color: appConfig.theme.colors.neutrals[200],
               }}
             />
+            {/* CallBack */}
+            <ButtonSendSticker
+              onStickerClick={(sticker) => {
+                console.log('[USANDO O COMPONENTE] Salva esse sticker no banco', sticker);
+                handleNovaMensagem(':sticker: ' + sticker)
+              }}
+            />
             <Button
               variant='secondary'
-              iconName='paperPlane'
+              styleSheet={{
+                display: 'flex',
+                alignItems: 'center',
+                minWidth: '80px',
+                justifyContent: 'center',
+                padding: '0 8px',
+                minHeight: '50px',
+                marginLeft: '5px',
+                marginBottom: '8px',
+                lineHeight: '0',
+              }}
+              label='Enviar'
               buttonColors={{
                 contrastColor: appConfig.theme.colors.neutrals["000"],
                 mainColor: appConfig.theme.colors.primary[500],
@@ -211,6 +247,7 @@ function MessageList(props) {
                 styleSheet={{
                   marginBottom: '8px',
                 }}
+                
               >
                 <Image
                   styleSheet={{
@@ -218,7 +255,7 @@ function MessageList(props) {
                     height: '20px',
                     borderRadius: '50%',
                     display: 'inline-block',
-                    marginRight: '8px',
+                    marginRight: '8px'
                   }}
                   src={`https://github.com/${mensagem.de}.png`}
                 />
@@ -236,7 +273,14 @@ function MessageList(props) {
                   {(new Date().toLocaleDateString())} às {mensagem.horario}
                 </Text>
               </Box>
-              {mensagem.texto}
+              {mensagem.texto.startsWith(':sticker:')
+                ? (
+                  <Image src={mensagem.texto.replace(':sticker:', '')} />
+                )
+                : (
+                  mensagem.texto
+                )
+              }
             </Box>
             <Button
               iconName={'trash'}

@@ -65,7 +65,7 @@ export default function PaginaInicial() {
             as="form"
             onSubmit={function (event) {
               event.preventDefault();
-              roteamento.push('/chat/');
+              roteamento.push(`/chat?username=${username}`);
               // window.location.href = '/chat';
             }}
             styleSheet={{
@@ -93,11 +93,8 @@ export default function PaginaInicial() {
             <TextField
               value={username}
               onChange={function (event){
-                console.log('o usuário digitou', event.target.value)
                 // onde está o valor
                 const valor = event.target.value;
-                // trocar o valor da variável através do 
-                // React e avise quem precisa
                 setUsername(valor)
               }}
               fullWidth
